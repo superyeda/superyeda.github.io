@@ -50,7 +50,7 @@
 <script>
         // JavaScript 逻辑
         document.addEventListener('DOMContentLoaded', () => {
-            const API_URL = 'http://121.40.154.233:8080/images';
+            const API_URL = 'https://api.github.com/repos/superyeda/superyeda.github.io/contents/assets/photo';
             const track = document.getElementById('carouselTrack');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
@@ -65,20 +65,13 @@
              */
             async function fetchImages() {
                 try {
-                    // 注意：如果 API 不支持 CORS，这个请求会在浏览器中失败。
-                    // 实际项目中，通常需要后端支持 CORS 或使用代理。
                     const response = await fetch(API_URL);
-                    if (!response.ok) {
-                        throw new Error(`HTTP 错误! 状态: ${response.status}`);
-                    }
-                    
-                    // 假设 API 返回一个 JSON 数组，例如：["url1", "url2", "url3", ...]
                     imageUrls = await response.json(); 
-                    if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
-                         // 使用一个占位符列表以防 API 返回格式不对或为空
-                        console.error('API 返回的图片列表为空或格式不正确，使用占位图。');
-                        imageUrls = createPlaceholderUrls(10);
-                    } else if (imageUrls.length < visibleCount * 2) {
+                    imageUrls.forEach((item,index)=>{
+                        imageUrls[index]=item.path;
+                    });
+                    console.log(imageUrls);
+                    if (imageUrls.length < visibleCount * 2) {
                         // 如果图片数量少，复制列表以确保轮播效果流畅
                         imageUrls = [...imageUrls, ...imageUrls, ...imageUrls];
                     }
@@ -91,7 +84,6 @@
             const j = Math.floor(Math.random() * (i + 1));
             [imageUrls[i], imageUrls[j]] = [imageUrls[j], imageUrls[i]];
         }
-
         // 2. 取前 10 个元素
         // 如果数组长度小于 10，则取全部元素
         const randomImageUrls = imageUrls.slice(0, 10);
@@ -99,27 +91,13 @@
         // 使用随机取出的 URL 列表
         imageUrls = randomImageUrls;
     }
-
                     renderCarousel();
                     startAutoSlide();
                 } catch (error) {
                     console.error('获取图片失败，请检查网络或CORS配置:', error);
-                    // 即使失败也使用占位图确保轮播图结构显示
-                    imageUrls = createPlaceholderUrls(10);
-                    renderCarousel();
-                    startAutoSlide();
                 }
             }
             
-            // 创建占位符图片 URL
-            function createPlaceholderUrls(count) {
-                const placeholders = [];
-                for (let i = 1; i <= count; i++) {
-                    // 使用 Lorem Picsum 或其他占位图服务
-                    placeholders.push(`https://picsum.photos/450/300?random=${i}`); 
-                }
-                return placeholders;
-            }
 
 
             /**
@@ -134,8 +112,8 @@
                     item.classList.add('carousel-item');
                     item.innerHTML = `
                         <div class="image-wrapper">
-                            <a href="/assets/photo/538070db9344bce4cfcf7bd0cfc4ffa.jpg" target="_blank">
-                            <img src=/assets/photo/538070db9344bce4cfcf7bd0cfc4ffa.jpg"  alt="轮播图片">
+                            <a href="${url}" target="_blank">
+                            <img src=${url}"  alt="轮播图片">
                             </a>
                         </div>
                     `;
